@@ -1,14 +1,14 @@
+// game.js
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-// Ajustar resolución al tamaño de pantalla física
 function resizeCanvas() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+  canvas.width = canvas.offsetWidth;
+  canvas.height = canvas.offsetHeight;
   calculatePlayerPosition();
 }
 window.addEventListener('resize', resizeCanvas);
-resizeCanvas(); // Ejecutar al cargar
+resizeCanvas();
 
 const roadWidth = 300;
 const laneCount = 3;
@@ -51,7 +51,7 @@ function drawObject(obj, image) {
   if (image && image.complete) {
     ctx.drawImage(image, obj.x, obj.y, obj.width, obj.height);
   } else {
-    ctx.fillStyle = obj.color;
+    ctx.fillStyle = obj.color || '#0f0';
     ctx.fillRect(obj.x, obj.y, obj.width, obj.height);
   }
 }
@@ -110,20 +110,22 @@ function update() {
   requestAnimationFrame(update);
 }
 
-// Pantallas
+// Pantallas y botones
 const startScreen = document.getElementById('startScreen');
 const gameOverScreen = document.getElementById('gameOverScreen');
+const namePrompt = document.getElementById('namePrompt');
+const playerNameInput = document.getElementById('playerName');
+const saveScoreBtn = document.getElementById('saveScoreBtn');
 const startBtn = document.getElementById('startBtn');
 const restartBtn = document.getElementById('restartBtn');
 const backToStartBtn = document.getElementById('backToStartBtn');
 const finalScoreText = document.getElementById('finalScore');
 
-// Tocar botones de pantalla
 startBtn.addEventListener('click', startGame);
 restartBtn.addEventListener('click', startGame);
 backToStartBtn.addEventListener('click', showStartScreen);
+saveScoreBtn.addEventListener('click', saveEnteredName);
 
-// Entrada por teclado
 function handleKeyDown(e) {
   if (e.code === "Enter" || e.code === "NumpadEnter") {
     if (!isGameRunning && startScreen.style.display === 'flex') {
@@ -146,7 +148,6 @@ function handleKeyDown(e) {
 
 document.addEventListener("keydown", handleKeyDown);
 
-// Soporte táctil
 canvas.addEventListener("touchstart", function (e) {
   const touchX = e.touches[0].clientX;
   const canvasRect = canvas.getBoundingClientRect();
@@ -160,7 +161,6 @@ canvas.addEventListener("touchstart", function (e) {
   calculatePlayerPosition();
 });
 
-// Botones táctiles
 document.getElementById('leftBtn').addEventListener('touchstart', () => {
   if (player.lane > 0) {
     player.lane--;
@@ -175,7 +175,6 @@ document.getElementById('rightBtn').addEventListener('touchstart', () => {
   }
 });
 
-// Funciones principales
 function resetGame() {
   score = 0;
   lives = 3;
@@ -193,6 +192,7 @@ function startGame() {
   isGameRunning = true;
   startScreen.style.display = 'none';
   gameOverScreen.style.display = 'none';
+  namePrompt.style.display = 'none';
   update();
 }
 
@@ -200,24 +200,26 @@ function showStartScreen() {
   isGameRunning = false;
   startScreen.style.display = 'flex';
   gameOverScreen.style.display = 'none';
+  namePrompt.style.display = 'none';
 }
 
 function showGameOverScreen() {
   isGameRunning = false;
   finalScoreText.innerText = `Puntuación final: ${score}`;
-  saveHighScore(score);
-  displayHighScores();
-  gameOverScreen.style.display = 'flex';
-  startScreen.style.display = 'none';
+  namePrompt.style.display = 'flex';
+  playerNameInput.focus();
 }
 
-function saveHighScore(score) {
+function saveEnteredName() {
+  const name = playerNameInput.value.trim() || "Anónimo";
   const highScores = JSON.parse(localStorage.getItem('highScores')) || [];
-  const name = prompt("¡Nuevo récord! Ingresa tu nombre:");
-  highScores.push({ name: name || "Anónimo", score });
+  highScores.push({ name, score });
   highScores.sort((a, b) => b.score - a.score);
   highScores.splice(5);
   localStorage.setItem('highScores', JSON.stringify(highScores));
+  namePrompt.style.display = 'none';
+  displayHighScores();
+  gameOverScreen.style.display = 'flex';
 }
 
 function displayHighScores() {
@@ -226,7 +228,6 @@ function displayHighScores() {
   highScoreList.innerHTML = "<h3>🏆 Récords:</h3>" + highScores.map(s => `<p>${s.name}: ${s.score}</p>`).join('');
 }
 
-// Foco forzado
 window.addEventListener('load', () => {
   setTimeout(() => {
     canvas.setAttribute("tabindex", "0");

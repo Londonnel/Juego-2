@@ -236,12 +236,11 @@ function displayHighScores() {
 
 window.addEventListener('load', () => {
   setTimeout(() => {
-    canvas.setAttribute("tabindex", "0");
-    canvas.focus();
     document.body.focus();
   }, 100);
 });
 
 window.addEventListener('click', () => {
-  canvas.focus();
+  document.body.focus();
 });
+

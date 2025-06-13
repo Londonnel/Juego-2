@@ -1,19 +1,10 @@
-// game.js
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
-
-function resizeCanvas() {
-  canvas.width = canvas.offsetWidth;
-  canvas.height = canvas.offsetHeight;
-  calculatePlayerPosition();
-}
-window.addEventListener('resize', resizeCanvas);
-resizeCanvas();
 
 const roadWidth = 300;
 const laneCount = 3;
 const laneWidth = roadWidth / laneCount;
-let marginX = (canvas.width - roadWidth) / 2;
+const marginX = (canvas.width - roadWidth) / 2;
 
 const playerImage = new Image();
 playerImage.src = 'images/player.png';
@@ -22,20 +13,13 @@ const enemyImage = new Image();
 enemyImage.src = 'images/enemy.png';
 
 let player = {
-  x: 0,
-  y: 0,
+  x: marginX + laneWidth + (laneWidth - 50) / 2,
+  y: canvas.height - 100,
   width: 50,
   height: 80,
+  color: "lime",
   lane: 1
 };
-
-function calculatePlayerPosition() {
-  marginX = (canvas.width - roadWidth) / 2;
-  player.x = marginX + player.lane * laneWidth + (laneWidth - player.width) / 2;
-  player.y = canvas.height - player.height - 20;
-}
-
-calculatePlayerPosition();
 
 let enemies = [];
 let enemySpeed = 5;
@@ -51,7 +35,7 @@ function drawObject(obj, image) {
   if (image && image.complete) {
     ctx.drawImage(image, obj.x, obj.y, obj.width, obj.height);
   } else {
-    ctx.fillStyle = obj.color || '#0f0';
+    ctx.fillStyle = obj.color;
     ctx.fillRect(obj.x, obj.y, obj.width, obj.height);
   }
 }
@@ -62,7 +46,8 @@ function spawnEnemy() {
     x: marginX + lane * laneWidth + (laneWidth - 50) / 2,
     y: -100,
     width: 50,
-    height: 80
+    height: 80,
+    color: "red"
   };
   enemies.push(enemy);
 }
@@ -110,76 +95,97 @@ function update() {
   requestAnimationFrame(update);
 }
 
-// Pantallas y botones
-const startScreen = document.getElementById('startScreen');
-const gameOverScreen = document.getElementById('gameOverScreen');
-const namePrompt = document.getElementById('namePrompt');
-const playerNameInput = document.getElementById('playerName');
-const saveScoreBtn = document.getElementById('saveScoreBtn');
-const startBtn = document.getElementById('startBtn');
-const restartBtn = document.getElementById('restartBtn');
-const backToStartBtn = document.getElementById('backToStartBtn');
-const finalScoreText = document.getElementById('finalScore');
-
-startBtn.addEventListener('click', startGame);
-restartBtn.addEventListener('click', startGame);
-backToStartBtn.addEventListener('click', showStartScreen);
-saveScoreBtn.addEventListener('click', saveEnteredName);
-
-function handleKeyDown(e) {
-  if (e.key === "Enter") {
-    if (!isGameRunning) {
-      if (startScreen.style.display === "flex" || startScreen.style.display === "") {
-        startGame();
-      } else if (gameOverScreen.style.display === "flex") {
-        startGame();
-      } else if (pauseScreen.style.display === "flex") {
-        resumeGame();
-      }
-    }
+document.addEventListener("keydown", function (e) {
+  if (e.code === "ArrowLeft" && player.lane > 0) {
+    player.lane--;
+  } else if (e.code === "ArrowRight" && player.lane < laneCount - 1) {
+    player.lane++;
   }
+  player.x = marginX + player.lane * laneWidth + (laneWidth - player.width) / 2;
+});
 
-  if (isGameRunning) {
-    if (e.key === "ArrowLeft" && player.lane > 0) {
-      player.lane--;
-      calculatePlayerPosition();
-    } else if (e.key === "ArrowRight" && player.lane < laneCount - 1) {
-      player.lane++;
-      calculatePlayerPosition();
-    } else if (e.key === "Escape") {
-      pauseGame();
-    }
-  }
-}
-
-document.addEventListener("keydown", handleKeyDown);
-
+// Soporte táctil para móviles
 canvas.addEventListener("touchstart", function (e) {
   const touchX = e.touches[0].clientX;
   const canvasRect = canvas.getBoundingClientRect();
   const relativeX = touchX - canvasRect.left;
 
   if (relativeX < canvas.width / 2 && player.lane > 0) {
+    // Tocar lado izquierdo → mover a la izquierda
     player.lane--;
   } else if (relativeX >= canvas.width / 2 && player.lane < laneCount - 1) {
+    // Tocar lado derecho → mover a la derecha
     player.lane++;
   }
-  calculatePlayerPosition();
+
+  player.x = marginX + player.lane * laneWidth + (laneWidth - player.width) / 2;
 });
 
+// Controles táctiles
 document.getElementById('leftBtn').addEventListener('touchstart', () => {
   if (player.lane > 0) {
     player.lane--;
-    calculatePlayerPosition();
+    player.x = marginX + player.lane * laneWidth + (laneWidth - player.width) / 2;
   }
 });
 
 document.getElementById('rightBtn').addEventListener('touchstart', () => {
   if (player.lane < laneCount - 1) {
     player.lane++;
-    calculatePlayerPosition();
+    player.x = marginX + player.lane * laneWidth + (laneWidth - player.width) / 2;
   }
 });
+
+// Pantallas
+const startScreen = document.getElementById('startScreen');
+const gameOverScreen = document.getElementById('gameOverScreen');
+const startBtn = document.getElementById('startBtn');
+const restartBtn = document.getElementById('restartBtn');
+const finalScoreText = document.getElementById('finalScore');
+const backToStartBtn = document.getElementById('backToStartBtn');
+
+backToStartBtn.addEventListener('click', showStartScreen);
+
+function showStartScreen() {
+  isGameRunning = false;
+  startScreen.style.display = 'flex';
+  gameOverScreen.style.display = 'none';
+}
+
+document.addEventListener('keydown', function (e) {
+  if (e.code === "Enter") {
+    if (!isGameRunning && startScreen.style.display === 'flex') {
+      startGame();
+    } else if (!isGameRunning && gameOverScreen.style.display === 'flex') {
+      startGame();
+    }
+  }
+});
+
+
+function showGameOverScreen() {
+  isGameRunning = false;
+  finalScoreText.innerText = `Puntuación final: ${score}`;
+  saveHighScore(score);
+  displayHighScores();
+  gameOverScreen.style.display = 'flex';
+  startScreen.style.display = 'none';
+}
+
+function saveHighScore(score) {
+  const highScores = JSON.parse(localStorage.getItem('highScores')) || [];
+  const name = prompt("¡Nuevo récord! Ingresa tu nombre:");
+  highScores.push({ name: name || "Anónimo", score });
+  highScores.sort((a, b) => b.score - a.score);
+  highScores.splice(5);
+  localStorage.setItem('highScores', JSON.stringify(highScores));
+}
+
+function displayHighScores() {
+  const highScores = JSON.parse(localStorage.getItem('highScores')) || [];
+  const highScoreList = document.getElementById('highScores');
+  highScoreList.innerHTML = "<h3>🏆 Récords:</h3>" + highScores.map(s => `<p>${s.name}: ${s.score}</p>`).join('');
+}
 
 function resetGame() {
   score = 0;
@@ -188,7 +194,7 @@ function resetGame() {
   enemies = [];
   spawnTimer = 0;
   player.lane = 1;
-  calculatePlayerPosition();
+  player.x = marginX + laneWidth + (laneWidth - player.width) / 2;
   document.getElementById('score').innerText = `Score: ${score}`;
   document.getElementById('lives').innerText = `Lives: ${lives}`;
 }
@@ -198,49 +204,10 @@ function startGame() {
   isGameRunning = true;
   startScreen.style.display = 'none';
   gameOverScreen.style.display = 'none';
-  namePrompt.style.display = 'none';
   update();
 }
 
-function showStartScreen() {
-  isGameRunning = false;
-  startScreen.style.display = 'flex';
-  gameOverScreen.style.display = 'none';
-  pauseScreen.style.display = 'none';
-}
+startBtn.addEventListener('click', startGame);
+restartBtn.addEventListener('click', startGame);
 
-function showGameOverScreen() {
-  isGameRunning = false;
-  finalScoreText.innerText = `Puntuación final: ${score}`;
-  namePrompt.style.display = 'flex';
-  playerNameInput.focus();
-}
-
-function saveEnteredName() {
-  const name = playerNameInput.value.trim() || "Anónimo";
-  const highScores = JSON.parse(localStorage.getItem('highScores')) || [];
-  highScores.push({ name, score });
-  highScores.sort((a, b) => b.score - a.score);
-  highScores.splice(5);
-  localStorage.setItem('highScores', JSON.stringify(highScores));
-  namePrompt.style.display = 'none';
-  displayHighScores();
-  gameOverScreen.style.display = 'flex';
-}
-
-function displayHighScores() {
-  const highScores = JSON.parse(localStorage.getItem('highScores')) || [];
-  const highScoreList = document.getElementById('highScores');
-  highScoreList.innerHTML = "<h3>🏆 Récords:</h3>" + highScores.map(s => `<p>${s.name}: ${s.score}</p>`).join('');
-}
-
-window.addEventListener('load', () => {
-  setTimeout(() => {
-    document.body.focus();
-  }, 100);
-});
-
-window.addEventListener('click', () => {
-  document.body.focus();
-});
-
+showStartScreen();

@@ -220,3 +220,13 @@ startBtn.addEventListener('click', startGame);
 restartBtn.addEventListener('click', startGame);
 
 showStartScreen();
+
+// Forzar foco en el documento para que detecte teclas como Enter
+window.addEventListener('load', () => {
+  window.focus();
+  document.body.focus();
+});
+
+window.addEventListener('click', () => {
+  window.focus();
+});

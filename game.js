@@ -105,12 +105,19 @@ function update() {
 }
 
 document.addEventListener("keydown", function (e) {
-  if (e.code === "ArrowLeft" && player.lane > 0) {
-    player.lane--;
-  } else if (e.code === "ArrowRight" && player.lane < laneCount - 1) {
-    player.lane++;
+  if (!isGameRunning && (e.code === "Enter" || e.code === "NumpadEnter")) {
+    startGame(); // Inicia juego con Enter
   }
-  player.x = marginX + player.lane * laneWidth + (laneWidth - player.width) / 2;
+
+  if (isGameRunning) {
+    if (e.code === "ArrowLeft" && player.lane > 0) {
+      player.lane--;
+      player.x = marginX + player.lane * laneWidth + (laneWidth - player.width) / 2;
+    } else if (e.code === "ArrowRight" && player.lane < laneCount - 1) {
+      player.lane++;
+      player.x = marginX + player.lane * laneWidth + (laneWidth - player.width) / 2;
+    }
+  }
 });
 
 // Soporte táctil para móviles

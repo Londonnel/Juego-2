@@ -206,7 +206,7 @@ function showStartScreen() {
   isGameRunning = false;
   startScreen.style.display = 'flex';
   gameOverScreen.style.display = 'none';
-  namePrompt.style.display = 'none';
+  pauseScreen.style.display = 'none';
 }
 
 function showGameOverScreen() {

@@ -2,20 +2,25 @@
 body {
   margin: 0;
   padding: 0;
-  overflow: hidden; /* Evita scroll */
-  background: linear-gradient(135deg, #222 0%, #000 100%);
+  overflow: hidden;
+  background: linear-gradient(135deg, #222, #000);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: #fff;
   text-align: center;
   user-select: none;
-  touch-action: none; /* Previene gestos por defecto como doble tap zoom o scroll */
+  touch-action: none;
   height: 100vh;
 }
 
 #gameContainer {
   position: relative;
-  width: 100vw;
+  width: 400px;
   height: 100vh;
+  margin: auto;
+  border: 3px solid #0f0;
+  border-radius: 12px;
+  background: #111;
+  box-shadow: 0 0 20px #0f0;
   overflow: hidden;
 }
 
@@ -24,30 +29,10 @@ body {
   height: 100%;
   display: block;
   background-color: #222;
-}
-
-
-/* Contenedor del juego */
-#gameContainer {
-  position: relative;
-  width: 400px;
-  margin: 40px auto;
-  border: 3px solid #0f0;
-  border-radius: 12px;
-  background: #111;
-  box-shadow: 0 0 20px #0f0;
-}
-
-/* Canvas del juego */
-#gameCanvas {
-  display: block;
-  background-color: #222;
-  margin: 0 auto;
   border-radius: 8px;
   box-shadow: inset 0 0 10px #0f0;
 }
 
-/* Marcadores */
 #score, #lives {
   font-size: 20px;
   margin: 10px 0;
@@ -55,7 +40,6 @@ body {
   font-weight: bold;
 }
 
-/* Pantallas (inicio y game over) */
 .overlayScreen {
   position: absolute;
   top: 0; left: 0;
@@ -70,10 +54,7 @@ body {
   font-weight: bold;
   font-size: 26px;
   border-radius: 8px;
-  text-shadow:
-    0 0 5px #0f0,
-    0 0 10px #0f0,
-    0 0 20px #0f0;
+  text-shadow: 0 0 5px #0f0, 0 0 10px #0f0, 0 0 20px #0f0;
   z-index: 10;
   user-select: none;
 }
@@ -91,9 +72,9 @@ body {
   }
 }
 
-/* Botones */
 .overlayScreen button,
-#touchControls button {
+#touchControls button,
+#saveScoreBtn {
   margin-top: 20px;
   padding: 10px 30px;
   font-size: 22px;
@@ -108,11 +89,11 @@ body {
 }
 
 .overlayScreen button:hover,
-#touchControls button:hover {
+#touchControls button:hover,
+#saveScoreBtn:hover {
   background-color: #0c0;
 }
 
-/* Controles táctiles */
 #touchControls {
   display: none;
   justify-content: center;
@@ -120,18 +101,26 @@ body {
   margin: 15px 0;
 }
 
-/* Responsive */
+#namePrompt input {
+  padding: 10px;
+  font-size: 18px;
+  margin-top: 10px;
+  border-radius: 8px;
+  border: 2px solid #0f0;
+  background-color: #000;
+  color: #0f0;
+  outline: none;
+  width: 80%;
+  max-width: 250px;
+  text-align: center;
+  box-shadow: 0 0 10px #0f0;
+}
+
 @media (max-width: 480px) {
   #gameContainer {
     width: 95%;
     margin: 20px auto;
-    border-width: 2px;
     box-shadow: 0 0 10px #0f0;
-  }
-
-  #gameCanvas {
-    width: 100%;
-    height: auto;
   }
 
   #score, #lives {

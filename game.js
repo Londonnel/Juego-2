@@ -140,12 +140,14 @@ function handleKeyDown(e) {
   }
 
   if (isGameRunning) {
-    if (e.code === "ArrowLeft" && player.lane > 0) {
+    if (e.key === "ArrowLeft" && player.lane > 0) {
       player.lane--;
       calculatePlayerPosition();
-    } else if (e.code === "ArrowRight" && player.lane < laneCount - 1) {
+    } else if (e.key === "ArrowRight" && player.lane < laneCount - 1) {
       player.lane++;
       calculatePlayerPosition();
+    } else if (e.key === "Escape") {
+      pauseGame();
     }
   }
 }

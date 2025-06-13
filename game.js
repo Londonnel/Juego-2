@@ -1,6 +1,15 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
+// Ajustar resolución al tamaño de pantalla física
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  calculateLaneWidth();
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas(); // Ejecutar al cargar
+
 const roadWidth = 300;
 const laneCount = 3;
 const laneWidth = roadWidth / laneCount;

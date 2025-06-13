@@ -127,11 +127,15 @@ backToStartBtn.addEventListener('click', showStartScreen);
 saveScoreBtn.addEventListener('click', saveEnteredName);
 
 function handleKeyDown(e) {
-  if (e.code === "Enter" || e.code === "NumpadEnter") {
-    if (!isGameRunning && startScreen.style.display === 'flex') {
-      startGame();
-    } else if (!isGameRunning && gameOverScreen.style.display === 'flex') {
-      startGame();
+  if (e.key === "Enter") {
+    if (!isGameRunning) {
+      if (startScreen.style.display === "flex" || startScreen.style.display === "") {
+        startGame();
+      } else if (gameOverScreen.style.display === "flex") {
+        startGame();
+      } else if (pauseScreen.style.display === "flex") {
+        resumeGame();
+      }
     }
   }
 

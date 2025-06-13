@@ -2,12 +2,30 @@
 body {
   margin: 0;
   padding: 0;
+  overflow: hidden; /* Evita scroll */
   background: linear-gradient(135deg, #222 0%, #000 100%);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: #fff;
   text-align: center;
   user-select: none;
+  touch-action: none; /* Previene gestos por defecto como doble tap zoom o scroll */
+  height: 100vh;
 }
+
+#gameContainer {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+#gameCanvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  background-color: #222;
+}
+
 
 /* Contenedor del juego */
 #gameContainer {

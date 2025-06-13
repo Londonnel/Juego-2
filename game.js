@@ -1,32 +1,23 @@
-// Referencias del canvas y contexto
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-// Variables globales para el tamaño y posición
-let laneWidth;
-let marginX;
-
-const roadWidth = 300;
-const laneCount = 3;
-
-function calculateLaneWidth() {
-  laneWidth = roadWidth / laneCount;
-  marginX = (canvas.width - roadWidth) / 2;
-}
-
+// Ajustar resolución al tamaño de pantalla física
 function resizeCanvas() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
-  calculateLaneWidth();
-  player.x = marginX + player.lane * laneWidth + (laneWidth - player.width) / 2;
-  player.y = canvas.height - 100;
+  calculatePlayerPosition();
 }
 window.addEventListener('resize', resizeCanvas);
-resizeCanvas();
+resizeCanvas(); // Ejecutar al cargar
 
-// Imágenes
+const roadWidth = 300;
+const laneCount = 3;
+const laneWidth = roadWidth / laneCount;
+let marginX = (canvas.width - roadWidth) / 2;
+
 const playerImage = new Image();
 playerImage.src = 'images/player.png';
+
 const enemyImage = new Image();
 enemyImage.src = 'images/enemy.png';
 
@@ -35,13 +26,21 @@ let player = {
   y: 0,
   width: 50,
   height: 80,
-  color: "lime",
   lane: 1
 };
+
+function calculatePlayerPosition() {
+  marginX = (canvas.width - roadWidth) / 2;
+  player.x = marginX + player.lane * laneWidth + (laneWidth - player.width) / 2;
+  player.y = canvas.height - player.height - 20;
+}
+
+calculatePlayerPosition();
 
 let enemies = [];
 let enemySpeed = 5;
 let spawnTimer = 0;
+
 let score = 0;
 let lives = 3;
 let isGameRunning = false;
@@ -63,8 +62,7 @@ function spawnEnemy() {
     x: marginX + lane * laneWidth + (laneWidth - 50) / 2,
     y: -100,
     width: 50,
-    height: 80,
-    color: "red"
+    height: 80
   };
   enemies.push(enemy);
 }
@@ -98,6 +96,7 @@ function update() {
   }
 
   enemies = enemies.filter(e => e.y < canvas.height);
+
   spawnTimer++;
   if (spawnTimer > 60) {
     spawnEnemy();
@@ -111,18 +110,91 @@ function update() {
   requestAnimationFrame(update);
 }
 
-// Pantallas y botones
+// Pantallas
 const startScreen = document.getElementById('startScreen');
 const gameOverScreen = document.getElementById('gameOverScreen');
 const startBtn = document.getElementById('startBtn');
 const restartBtn = document.getElementById('restartBtn');
-const finalScoreText = document.getElementById('finalScore');
 const backToStartBtn = document.getElementById('backToStartBtn');
-const highScoreList = document.getElementById('highScores');
+const finalScoreText = document.getElementById('finalScore');
 
-backToStartBtn.addEventListener('click', showStartScreen);
+// Tocar botones de pantalla
 startBtn.addEventListener('click', startGame);
 restartBtn.addEventListener('click', startGame);
+backToStartBtn.addEventListener('click', showStartScreen);
+
+// Entrada por teclado
+function handleKeyDown(e) {
+  if (e.code === "Enter" || e.code === "NumpadEnter") {
+    if (!isGameRunning && startScreen.style.display === 'flex') {
+      startGame();
+    } else if (!isGameRunning && gameOverScreen.style.display === 'flex') {
+      startGame();
+    }
+  }
+
+  if (isGameRunning) {
+    if (e.code === "ArrowLeft" && player.lane > 0) {
+      player.lane--;
+      calculatePlayerPosition();
+    } else if (e.code === "ArrowRight" && player.lane < laneCount - 1) {
+      player.lane++;
+      calculatePlayerPosition();
+    }
+  }
+}
+
+document.addEventListener("keydown", handleKeyDown);
+
+// Soporte táctil
+canvas.addEventListener("touchstart", function (e) {
+  const touchX = e.touches[0].clientX;
+  const canvasRect = canvas.getBoundingClientRect();
+  const relativeX = touchX - canvasRect.left;
+
+  if (relativeX < canvas.width / 2 && player.lane > 0) {
+    player.lane--;
+  } else if (relativeX >= canvas.width / 2 && player.lane < laneCount - 1) {
+    player.lane++;
+  }
+  calculatePlayerPosition();
+});
+
+// Botones táctiles
+document.getElementById('leftBtn').addEventListener('touchstart', () => {
+  if (player.lane > 0) {
+    player.lane--;
+    calculatePlayerPosition();
+  }
+});
+
+document.getElementById('rightBtn').addEventListener('touchstart', () => {
+  if (player.lane < laneCount - 1) {
+    player.lane++;
+    calculatePlayerPosition();
+  }
+});
+
+// Funciones principales
+function resetGame() {
+  score = 0;
+  lives = 3;
+  enemySpeed = 5;
+  enemies = [];
+  spawnTimer = 0;
+  player.lane = 1;
+  calculatePlayerPosition();
+  document.getElementById('score').innerText = `Score: ${score}`;
+  document.getElementById('lives').innerText = `Lives: ${lives}`;
+}
+
+function startGame() {
+  resetGame();
+  isGameRunning = true;
+  startScreen.style.display = 'none';
+  gameOverScreen.style.display = 'none';
+  update();
+}
 
 function showStartScreen() {
   isGameRunning = false;
@@ -150,90 +222,19 @@ function saveHighScore(score) {
 
 function displayHighScores() {
   const highScores = JSON.parse(localStorage.getItem('highScores')) || [];
+  const highScoreList = document.getElementById('highScores');
   highScoreList.innerHTML = "<h3>🏆 Récords:</h3>" + highScores.map(s => `<p>${s.name}: ${s.score}</p>`).join('');
 }
 
-function resetGame() {
-  score = 0;
-  lives = 3;
-  enemySpeed = 5;
-  enemies = [];
-  spawnTimer = 0;
-  player.lane = 1;
-  player.x = marginX + laneWidth + (laneWidth - player.width) / 2;
-  player.y = canvas.height - 100;
-  document.getElementById('score').innerText = `Score: ${score}`;
-  document.getElementById('lives').innerText = `Lives: ${lives}`;
-}
-
-function startGame() {
-  resetGame();
-  isGameRunning = true;
-  startScreen.style.display = 'none';
-  gameOverScreen.style.display = 'none';
-  update();
-}
-
-// Controles por teclado y foco
+// Foco forzado
 window.addEventListener('load', () => {
-  document.body.setAttribute('tabindex', '0');
-  document.body.focus();
+  setTimeout(() => {
+    canvas.setAttribute("tabindex", "0");
+    canvas.focus();
+    document.body.focus();
+  }, 100);
 });
 
-['touchstart', 'click'].forEach(event =>
-  document.addEventListener(event, () => document.body.focus())
-);
-
-document.addEventListener("keydown", function (e) {
-  if (e.code === "Enter" || e.code === "NumpadEnter") {
-    if (!isGameRunning && (startScreen.style.display === 'flex' || gameOverScreen.style.display === 'flex')) {
-      startGame();
-    }
-    e.preventDefault();
-    return;
-  }
-
-  if (isGameRunning) {
-    if (e.code === "ArrowLeft" && player.lane > 0) {
-      player.lane--;
-    } else if (e.code === "ArrowRight" && player.lane < laneCount - 1) {
-      player.lane++;
-    }
-    player.x = marginX + player.lane * laneWidth + (laneWidth - player.width) / 2;
-  }
+window.addEventListener('click', () => {
+  canvas.focus();
 });
-
-// Controles táctiles por pantalla
-canvas.addEventListener("touchstart", function (e) {
-  const touchX = e.touches[0].clientX;
-  const canvasRect = canvas.getBoundingClientRect();
-  const relativeX = touchX - canvasRect.left;
-
-  if (relativeX < canvas.width / 2 && player.lane > 0) {
-    player.lane--;
-  } else if (relativeX >= canvas.width / 2 && player.lane < laneCount - 1) {
-    player.lane++;
-  }
-
-  player.x = marginX + player.lane * laneWidth + (laneWidth - player.width) / 2;
-});
-
-// Botones táctiles
-const leftBtn = document.getElementById('leftBtn');
-const rightBtn = document.getElementById('rightBtn');
-
-leftBtn.addEventListener('touchstart', () => {
-  if (player.lane > 0) {
-    player.lane--;
-    player.x = marginX + player.lane * laneWidth + (laneWidth - player.width) / 2;
-  }
-});
-
-rightBtn.addEventListener('touchstart', () => {
-  if (player.lane < laneCount - 1) {
-    player.lane++;
-    player.x = marginX + player.lane * laneWidth + (laneWidth - player.width) / 2;
-  }
-});
-
-showStartScreen();

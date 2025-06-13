@@ -4,19 +4,6 @@
   <meta charset="UTF-8">
   <title>Esquiva el Tráfico</title>
   <link rel="stylesheet" href="style.css">
-  <style>
-    body {
-      text-align: center;
-      font-family: Arial, sans-serif;
-      background-color: #111;
-      color: white;
-    }
-
-    #score, #lives {
-      font-size: 20px;
-      margin: 10px;
-    }
-  </style>
 </head>
 <body>
   <div id="gameContainer">
@@ -25,24 +12,29 @@
     <div id="lives">Lives: 3</div>
 
     <!-- Pantalla de inicio -->
-<div id="startScreen" class="overlayScreen">
-  <h1>Esquiva el Tráfico</h1>
-  <p>Usa las flechas para moverte</p>
-  <button id="startBtn">Presiona para empezar</button>
-</div>
+    <div id="startScreen" class="overlayScreen">
+      <h1>Esquiva el Tráfico</h1>
+      <p>Usa las flechas o botones para moverte</p>
+      <button id="startBtn">Presiona para empezar</button>
+    </div>
 
-  <!-- Pantalla de Game Over -->
-<div id="gameOverScreen" class="overlayScreen" style="display:none;">
-  <h1>¡Game Over!</h1>
-  <p id="finalScore"></p>
-  <div id="highScores" style="margin-top: 20px; text-align: left; width: 80%; max-width: 300px; margin-left: auto; margin-right: auto;"></div>
-  <button id="restartBtn">Reiniciar Juego</button>
-  <button id="backToStartBtn">Volver al Inicio</button>
-</div>
+    <!-- Pantalla de Game Over -->
+    <div id="gameOverScreen" class="overlayScreen" style="display:none;">
+      <h1>¡Game Over!</h1>
+      <p id="finalScore"></p>
+      <div id="highScores"></div>
+      <button id="restartBtn">Reiniciar Juego</button>
+      <button id="backToStartBtn">Volver al Inicio</button>
+    </div>
 
-  <!-- Sonido de colisión -->
+    <!-- Controles táctiles -->
+    <div id="touchControls">
+      <button id="leftBtn">⬅️</button>
+      <button id="rightBtn">➡️</button>
+    </div>
+  </div>
+
   <audio id="crashSound" src="sounds/crash.mp3" preload="auto"></audio>
-
   <script src="game.js"></script>
 </body>
 </html>

@@ -2,6 +2,7 @@
 body {
   margin: 0;
   padding: 0;
+  outline: none;
   overflow: hidden;
   background: linear-gradient(135deg, #222, #000);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;

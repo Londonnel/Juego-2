@@ -104,6 +104,23 @@ document.addEventListener("keydown", function (e) {
   player.x = marginX + player.lane * laneWidth + (laneWidth - player.width) / 2;
 });
 
+// Soporte táctil para móviles
+canvas.addEventListener("touchstart", function (e) {
+  const touchX = e.touches[0].clientX;
+  const canvasRect = canvas.getBoundingClientRect();
+  const relativeX = touchX - canvasRect.left;
+
+  if (relativeX < canvas.width / 2 && player.lane > 0) {
+    // Tocar lado izquierdo → mover a la izquierda
+    player.lane--;
+  } else if (relativeX >= canvas.width / 2 && player.lane < laneCount - 1) {
+    // Tocar lado derecho → mover a la derecha
+    player.lane++;
+  }
+
+  player.x = marginX + player.lane * laneWidth + (laneWidth - player.width) / 2;
+});
+
 // Controles táctiles
 document.getElementById('leftBtn').addEventListener('touchstart', () => {
   if (player.lane > 0) {

@@ -6,16 +6,12 @@ const laneCount = 3;
 const laneWidth = roadWidth / laneCount;
 const marginX = (canvas.width - roadWidth) / 2;
 
-// Cargar imágenes
 const playerImage = new Image();
 playerImage.src = 'images/player.png';
-playerImage.onload = () => console.log("Imagen de jugador cargada");
 
 const enemyImage = new Image();
 enemyImage.src = 'images/enemy.png';
-enemyImage.onload = () => console.log("Imagen de enemigo cargada");
 
-// Jugador
 let player = {
   x: marginX + laneWidth + (laneWidth - 50) / 2,
   y: canvas.height - 100,
@@ -25,22 +21,16 @@ let player = {
   lane: 1
 };
 
-// Enemigos
 let enemies = [];
 let enemySpeed = 5;
 let spawnTimer = 0;
 
-// Juego
 let score = 0;
 let lives = 3;
 let isGameRunning = false;
 
 const crashSound = new Audio('sounds/crash.mp3');
 
-document.getElementById('score').innerText = `Score: ${score}`;
-document.getElementById('lives').innerText = `Lives: ${lives}`;
-
-// Dibuja usando imagen si está disponible, si no, usa color
 function drawObject(obj, image) {
   if (image && image.complete) {
     ctx.drawImage(image, obj.x, obj.y, obj.width, obj.height);
@@ -66,14 +56,12 @@ function update() {
   if (!isGameRunning) return;
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-
   drawObject(player, playerImage);
 
   for (let i = 0; i < enemies.length; i++) {
     enemies[i].y += enemySpeed;
     drawObject(enemies[i], enemyImage);
 
-    // Colisión
     if (
       player.x < enemies[i].x + enemies[i].width &&
       player.x + player.width > enemies[i].x &&
@@ -81,16 +69,13 @@ function update() {
       player.y + player.height > enemies[i].y
     ) {
       crashSound.play();
-
       enemies.splice(i, 1);
       lives--;
       document.getElementById('lives').innerText = `Lives: ${lives}`;
-
       if (lives <= 0) {
         showGameOverScreen();
         return;
       }
-
       break;
     }
   }
@@ -105,10 +90,7 @@ function update() {
 
   score++;
   document.getElementById('score').innerText = `Score: ${score}`;
-
-  if (score % 100 === 0) {
-    enemySpeed += 1;
-  }
+  if (score % 100 === 0) enemySpeed += 1;
 
   requestAnimationFrame(update);
 }
@@ -116,8 +98,22 @@ function update() {
 document.addEventListener("keydown", function (e) {
   if (e.code === "ArrowLeft" && player.lane > 0) {
     player.lane--;
-    player.x = marginX + player.lane * laneWidth + (laneWidth - player.width) / 2;
   } else if (e.code === "ArrowRight" && player.lane < laneCount - 1) {
+    player.lane++;
+  }
+  player.x = marginX + player.lane * laneWidth + (laneWidth - player.width) / 2;
+});
+
+// Controles táctiles
+document.getElementById('leftBtn').addEventListener('touchstart', () => {
+  if (player.lane > 0) {
+    player.lane--;
+    player.x = marginX + player.lane * laneWidth + (laneWidth - player.width) / 2;
+  }
+});
+
+document.getElementById('rightBtn').addEventListener('touchstart', () => {
+  if (player.lane < laneCount - 1) {
     player.lane++;
     player.x = marginX + player.lane * laneWidth + (laneWidth - player.width) / 2;
   }
@@ -131,9 +127,7 @@ const restartBtn = document.getElementById('restartBtn');
 const finalScoreText = document.getElementById('finalScore');
 const backToStartBtn = document.getElementById('backToStartBtn');
 
-backToStartBtn.addEventListener('click', () => {
-  showStartScreen();
-});
+backToStartBtn.addEventListener('click', showStartScreen);
 
 function showStartScreen() {
   isGameRunning = false;
@@ -141,13 +135,22 @@ function showStartScreen() {
   gameOverScreen.style.display = 'none';
 }
 
+document.addEventListener('keydown', function (e) {
+  if (e.code === "Enter") {
+    if (!isGameRunning && startScreen.style.display === 'flex') {
+      startGame();
+    } else if (!isGameRunning && gameOverScreen.style.display === 'flex') {
+      startGame();
+    }
+  }
+});
+
+
 function showGameOverScreen() {
   isGameRunning = false;
   finalScoreText.innerText = `Puntuación final: ${score}`;
-  
-  saveHighScore(score);       // Nuevo récord si aplica
-  displayHighScores();        // Mostrar récords actualizados
-
+  saveHighScore(score);
+  displayHighScores();
   gameOverScreen.style.display = 'flex';
   startScreen.style.display = 'none';
 }
@@ -155,11 +158,9 @@ function showGameOverScreen() {
 function saveHighScore(score) {
   const highScores = JSON.parse(localStorage.getItem('highScores')) || [];
   const name = prompt("¡Nuevo récord! Ingresa tu nombre:");
-
   highScores.push({ name: name || "Anónimo", score });
   highScores.sort((a, b) => b.score - a.score);
-  highScores.splice(5); // Solo mantener top 5
-
+  highScores.splice(5);
   localStorage.setItem('highScores', JSON.stringify(highScores));
 }
 

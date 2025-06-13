@@ -1,22 +1,31 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Esquiva el Tráfico</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
-<body tabindex="0"> <!-- Aquí damos tabindex para que el body pueda tomar foco -->
-
+<body tabindex="0">
   <div id="gameContainer">
     <canvas id="gameCanvas" tabindex="-1"></canvas>
+
     <div id="score">Score: 0</div>
     <div id="lives">Lives: 3</div>
 
-    <!-- Pantalla de inicio -->
+    <!-- Pantalla de Inicio -->
     <div id="startScreen" class="overlayScreen">
       <h1>Esquiva el Tráfico</h1>
-      <p>Usa las flechas o botones para moverte</p>
+      <p>Usa las flechas o los botones táctiles para moverte</p>
       <button id="startBtn">Presiona para empezar</button>
+    </div>
+
+    <!-- Pantalla de Pausa -->
+    <div id="pauseScreen" class="overlayScreen" style="display:none;">
+      <h1>Juego en Pausa</h1>
+      <button id="resumeBtn">Continuar</button>
+      <button id="restartFromPauseBtn">Reiniciar</button>
+      <button id="backToStartFromPauseBtn">Volver al Inicio</button>
     </div>
 
     <!-- Pantalla de Game Over -->
